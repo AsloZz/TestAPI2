@@ -7,21 +7,55 @@
 </head>
 <body>
     <h1>Facebook Authorization Callback</h1>
-    <p>Your authorization code is:</p>
+    <p>Checking login status...</p>
     
     <script>
         // SDK Facebook - Chargement asynchrone du SDK
         window.fbAsyncInit = function() {
             FB.init({
-                appId      : '837759208251999',  // Remplacez par l'ID de votre app Facebook
+                appId      : '837759208251999',  // Remplacez par votre App ID de test
                 cookie     : true,  // Active les cookies pour gérer les sessions
                 xfbml      : true,  // Active le parsing des plugins sociaux sur cette page
-                version    : 'v21.0'  // Version de l'API Graph (v21.0)
+                version    : 'v21.0'  // Utilisez la version v21.0 de l'API Graph
             });
             
-            // Exemple d'événement : Vous pouvez loguer des événements Facebook ici
-            FB.AppEvents.logPageView();   
+            // Vérifier l'état de connexion de l'utilisateur
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
         };
+
+        // Fonction pour gérer la réponse de l'état de connexion
+        function statusChangeCallback(response) {
+            console.log(response);  // Affiche la réponse dans la console pour inspection
+
+            if (response.status === 'connected') {
+                // Utilisateur connecté à Facebook
+                document.write('<p>Connected to Facebook!</p>');
+                // Vous pouvez récupérer des informations de base sur l'utilisateur connecté
+                FB.api('/me', function(response) {
+                    document.write('<p>Bonjour, ' + response.name + '!</p>');
+                    console.log('User Info:', response);
+                });
+            } else {
+                // Utilisateur non connecté ou non autorisé
+                document.write('<p>Not logged into Facebook.</p>');
+                // Affichez un bouton pour se connecter à Facebook
+                document.write('<button onclick="loginToFacebook()">Login to Facebook</button>');
+            }
+        }
+
+        // Fonction pour déclencher la boîte de dialogue de connexion à Facebook
+        function loginToFacebook() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    console.log('Logged in successfully.');
+                    statusChangeCallback(response);  // Recheck status after login
+                } else {
+                    console.log('User cancelled login or did not fully authorize.');
+                }
+            });
+        }
 
         // Chargement asynchrone du SDK Facebook
         (function(d, s, id){
@@ -31,17 +65,6 @@
             js.src = "https://connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
-
-        // Capture the authorization code from the URL query string
-        const params = new URLSearchParams(window.location.search);
-        const authorizationCode = params.get('code');
-        if (authorizationCode) {
-            document.write('<p>' + authorizationCode + '</p>');
-            console.log("Authorization Code:", authorizationCode);
-        } else {
-            document.write('<p>No authorization code found.</p>');
-            console.log("No authorization code found.");
-        }
     </script>
 </body>
 </html>
