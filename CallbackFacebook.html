@@ -8,7 +8,30 @@
 <body>
     <h1>Facebook Authorization Callback</h1>
     <p>Your authorization code is:</p>
+    
     <script>
+        // SDK Facebook - Chargement asynchrone du SDK
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '837759208251999',  // Remplacez par l'ID de votre app Facebook
+                cookie     : true,  // Active les cookies pour gérer les sessions
+                xfbml      : true,  // Active le parsing des plugins sociaux sur cette page
+                version    : 'v21.0'  // Version de l'API Graph (v21.0)
+            });
+            
+            // Exemple d'événement : Vous pouvez loguer des événements Facebook ici
+            FB.AppEvents.logPageView();   
+        };
+
+        // Chargement asynchrone du SDK Facebook
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
         // Capture the authorization code from the URL query string
         const params = new URLSearchParams(window.location.search);
         const authorizationCode = params.get('code');
