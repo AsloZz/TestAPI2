@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook OAuth Callback</title>
+    <title>Facebook Login Example</title>
 </head>
 <body>
-    <h1>Facebook Authorization Callback</h1>
-    <p>Checking login status...</p>
-    
+    <h1>Facebook Login Button Example</h1>
+
+    <!-- Bouton Facebook Login -->
+    <fb:login-button 
+      scope="public_profile,email"
+      onlogin="checkLoginState();">
+    </fb:login-button>
+
+    <!-- Contenu affiché après connexion -->
+    <div id="status"></div>
+
     <script>
         // SDK Facebook - Chargement asynchrone du SDK
         window.fbAsyncInit = function() {
@@ -19,41 +27,35 @@
                 version    : 'v21.0'  // Utilisez la version v21.0 de l'API Graph
             });
             
-            // Vérifier l'état de connexion de l'utilisateur
+            // Vérifier l'état de connexion au chargement de la page
             FB.getLoginStatus(function(response) {
                 statusChangeCallback(response);
             });
         };
 
-        // Fonction pour gérer la réponse de l'état de connexion
+        // Fonction pour traiter l'état de connexion
         function statusChangeCallback(response) {
             console.log(response);  // Affiche la réponse dans la console pour inspection
 
+            // Si l'utilisateur est connecté à Facebook et a autorisé l'application
             if (response.status === 'connected') {
-                // Utilisateur connecté à Facebook
-                document.write('<p>Connected to Facebook!</p>');
-                // Vous pouvez récupérer des informations de base sur l'utilisateur connecté
-                FB.api('/me', function(response) {
-                    document.write('<p>Bonjour, ' + response.name + '!</p>');
+                document.getElementById('status').innerHTML = 'You are logged in!';
+                // Récupérer les informations de base de l'utilisateur
+                FB.api('/me', {fields: 'name,email'}, function(response) {
+                    document.getElementById('status').innerHTML =
+                        'Thanks for logging in, ' + response.name + '! Your email is: ' + response.email;
                     console.log('User Info:', response);
                 });
             } else {
-                // Utilisateur non connecté ou non autorisé
-                document.write('<p>Not logged into Facebook.</p>');
-                // Affichez un bouton pour se connecter à Facebook
-                document.write('<button onclick="loginToFacebook()">Login to Facebook</button>');
+                // Si l'utilisateur n'est pas connecté ou n'a pas autorisé l'application
+                document.getElementById('status').innerHTML = 'Please log into this app.';
             }
         }
 
-        // Fonction pour déclencher la boîte de dialogue de connexion à Facebook
-        function loginToFacebook() {
-            FB.login(function(response) {
-                if (response.authResponse) {
-                    console.log('Logged in successfully.');
-                    statusChangeCallback(response);  // Recheck status after login
-                } else {
-                    console.log('User cancelled login or did not fully authorize.');
-                }
+        // Fonction appelée après que l'utilisateur a cliqué sur le bouton Login
+        function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
             });
         }
 
